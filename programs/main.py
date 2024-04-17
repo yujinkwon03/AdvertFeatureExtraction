@@ -1,5 +1,6 @@
 from video_splice import save_all_frames, save_onepersec_frames
 from image_analysis import open_locImage, describe_image, categorize_image, detect_objects, detect_brands, detect_color, detect_faces
+from csv_make import create_tuples_for_video, write_tuples_to_csv
 
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from azure.cognitiveservices.vision.computervision.models import OperationStatusCodes
@@ -58,38 +59,13 @@ def main():
     computervision_client = ComputerVisionClient(endpoint, CognitiveServicesCredentials(subscription_key))
 
         # *** CHANGE THIS SO THAT IT IS GENERALIZABLE ***
-    imagelocal_path = '/Users/yujinkwon/Documents/AILab/programs/splice_test/video_test/spliced_videos/JackDaniel.mp4_frames'
+    framesdirectory_path = '/Users/yujinkwon/Documents/AILab/programs/splice_test/video_test/spliced_videos/JackDaniel.mp4_frames'
     image_name = 'JackDaniel.mp4_image_116.jpg'
+    csv_name = 'JackDaniel.csv'
 
-    # 
-
-    extract_frame_number(image_name)
-
-    # describe image
-    local_image_path, local_image = open_locImage(imagelocal_path, image_name)
-    image_description = describe_image(computervision_client, local_image, True)
-
-    # categorize image
-    local_image_path, local_image = open_locImage(imagelocal_path, image_name)
-    categories_description = categorize_image(computervision_client, local_image)
-
-    # detect objects
-    local_image_path, local_image = open_locImage(imagelocal_path, image_name)
-    objects_detected = detect_objects(computervision_client, local_image)
-
-    # detect brands
-    local_image_path, local_image = open_locImage(imagelocal_path, image_name)
-    brands_detected = detect_brands(computervision_client, local_image)
-
-    # detect color
-    local_image_path, local_image = open_locImage(imagelocal_path, image_name)
-    color_detected = detect_color(computervision_client, local_image)
-
-    #detect faces
-    local_image_path, local_image = open_locImage(imagelocal_path, image_name)
-    faces_detected = detect_faces(computervision_client, local_image)
-
-    print(faces_detected)
+    # ORGANIZE PIPELINE INTO FOLDERS!!!
+    frame_tuples = create_tuples_for_video(framesdirectory_path)
+    write_tuples_to_csv(frame_tuples, )
 
     # local_image.close()
     cv2.destroyAllWindows()

@@ -16,6 +16,17 @@ import csv
 """
 
 def make_json(image_path, image_name, subscription_key, endpoint):
+    """
+    Makes JSON files of image description, objects detected, brands detected, color detected, faces detected (from image_analysis.py)
+    Given: image_path, image_name, subscription_key, endpoint
+    Returns: JSON files of 
+        image description
+        objects detected
+        brands detected
+        color detected
+        faces detected
+    """
+
     # Create a client
     computervision_client = ComputerVisionClient(endpoint, CognitiveServicesCredentials(subscription_key))
 
@@ -66,7 +77,7 @@ def make_json(image_path, image_name, subscription_key, endpoint):
         # Convert caption_data to a JSON string
         caption_data_json = json.dumps(caption_data)
     
-    print(caption_data_json)
+    # print(caption_data_json)
 
 
     #object_detected
@@ -88,7 +99,7 @@ def make_json(image_path, image_name, subscription_key, endpoint):
 
         object_data_json = json.dumps(object_data)
     
-    print(object_data_json)
+    # print(object_data_json)
 
     #brands_detected
     if len(brands_detected.brands) == 0:
@@ -117,7 +128,7 @@ def make_json(image_path, image_name, subscription_key, endpoint):
         # Convert brand_data to a JSON string
         brand_data_json = json.dumps(brand_data)
         
-    print(brand_data_json)
+    # print(brand_data_json)
 
     
     #color_detected
@@ -156,21 +167,52 @@ def make_json(image_path, image_name, subscription_key, endpoint):
         # Convert face_data to a JSON string
         face_data_json = json.dumps(face_data)
     
-    print(face_data_json)
+    # print(face_data_json)
 
     return caption_data_json, object_data_json, brand_data_json, color_data_json, face_data_json
                     
     cv2.destroyAllWindows()
 
-# def make_csv(json_list, csv_name, frame_number):
-#     with open(csv_name, 'w', newline='') as file:
-#         writer = csv.writer(file)
-#         if file.tell() == 0:  # Check if the file is empty
-#              writer.writerow(["Frame Number", "Image Description", "Object Detected", "Brand Detected", "Color Detected", "Face Detected"])
-#         writer.writerow(["Frame Number", "Image Description", "Object Detected", "Brand Detected", "Color Detected", "Face Detected"])
-#         writer.writerows(frame_number, json_list)
+def create_tuples_for_video(video_frames_directory):
+    """
+        Create a list of tuples containing the frame number and JSON data for each frame in the video
+        Given: video_frames_directory, features_directory
+        Returns: list of tuples containing the frame number and JSON data
+    """
+
+    # Initialize an empty list to store the tuples
+    tuples_list = []
+
+    # Iterate through the frames directory
+    for frame_file in os.listdir(video_frames_directory):
+        # Get the frame number from the filename 
+        frame_number = frame_file.split('_')[-1].split('.')[0]
+        # print(frame_number)
+        
+        # retreive feature json tuples 
+        features_jsons = make_json('/Users/yujinkwon/Documents/AILab/programs/splice_test/video_test/spliced_videos/JackDaniel.mp4_frames', 'JackDaniel.mp4_image_116.jpg', subscription_key, endpoint)
+        frame_number_tuple = (frame_number,)
+
+        # Merge frame_number_tuple with features_jsons tuple
+        data_tuple = frame_number_tuple + features_jsons
+        # print(data_tuple)
+        
+        # Add the tuple to the list
+        tuples_list.append(data_tuple)
+
+    return tuples_list
+
+def write_tuples_to_csv(tuples_list, csv_filename):
+    # Open the CSV file in write mode
+    with open(csv_filename, 'w', newline='') as csvfile:
+        # Create a CSV writer object
+        csv_writer = csv.writer(csvfile)
+        
+        # Write each tuple to the CSV file
+        csv_writer.writerows(tuples_list)
+
 
 subscription_key = os.environ.get("VISION_KEY")
 endpoint = os.environ.get("VISION_ENDPOINT")
+frame_tuples = create_tuples_for_video('/Users/yujinkwon/Documents/AILab/programs/splice_test/video_test/spliced_videos/JackDaniel.mp4_frames')
 
-make_json('/Users/yujinkwon/Documents/AILab/programs/splice_test/video_test/spliced_videos/JackDaniel.mp4_frames', 'JackDaniel.mp4_image_116.jpg', subscription_key, endpoint)
